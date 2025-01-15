@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import uvicorn
 from pydantic import BaseModel
 
@@ -27,7 +27,7 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
-    api_key: str
+    token: str
     reasoning_effort: str = "low"
 
 class ChatResponse(BaseModel):
@@ -35,47 +35,73 @@ class ChatResponse(BaseModel):
     total_tokens: int
     cost: float
     user_total_cost: float
+    daily_requests: int
 
-def get_user(api_key: str, session: Session) -> User:
-    """Get user by API key or raise 401."""
-    user = session.query(User).filter(User.api_key == api_key).first()
+class UserStats(BaseModel):
+    name: str
+    total_tokens: int
+    total_cost: float
+    daily_requests: int
+    usage_limit: float
+    is_active: bool
+    last_used: Optional[str]
+    last_ip: Optional[str]
+
+def get_user(token: str, session: Session, request: Request) -> User:
+    """Get user by token or raise 401."""
+    user = session.query(User).filter(User.token == token).first()
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid API key")
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    # Check user limits
+    can_proceed, message = user.check_limits()
+    if not can_proceed:
+        raise HTTPException(status_code=429, detail=message)
+    
     return user
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
+async def chat(request: Request, chat_request: ChatRequest):
     session = create_session()
-    user = get_user(request.api_key, session)
+    user = get_user(chat_request.token, session, request)
     
     # Convert Pydantic models to dict for O1Client
-    messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
+    messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
     
     # Query O1
-    response = o1_client.query(messages, request.reasoning_effort)
+    response = o1_client.query(messages, chat_request.reasoning_effort)
     
     # Update user statistics
-    user.update_usage(response.token_usage.total_tokens, response.cost)
+    user.update_usage(
+        tokens=response.token_usage.total_tokens,
+        cost=response.cost,
+        ip=request.client.host
+    )
     session.commit()
     
     return ChatResponse(
         content=response.content,
         total_tokens=response.token_usage.total_tokens,
         cost=response.cost,
-        user_total_cost=user.total_cost
+        user_total_cost=user.total_cost,
+        daily_requests=user.daily_request_count
     )
 
-@app.get("/user/stats/{api_key}")
-async def get_user_stats(api_key: str):
+@app.get("/user/stats/{token}", response_model=UserStats)
+async def get_user_stats(token: str, request: Request):
     session = create_session()
-    user = get_user(api_key, session)
+    user = get_user(token, session, request)
     
-    return {
-        "name": user.name,
-        "total_tokens": user.total_tokens,
-        "total_cost": user.total_cost,
-        "last_used": user.last_used_at
-    }
+    return UserStats(
+        name=user.name,
+        total_tokens=user.total_tokens,
+        total_cost=user.total_cost,
+        daily_requests=user.daily_request_count,
+        usage_limit=user.usage_limit,
+        is_active=user.is_active,
+        last_used=user.last_used_at.isoformat() if user.last_used_at else None,
+        last_ip=user.last_ip
+    )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8011) 
