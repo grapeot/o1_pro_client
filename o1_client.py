@@ -2,6 +2,7 @@ from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from dataclasses import dataclass
 from typing import Optional, List
+import time
 
 @dataclass
 class TokenUsage:
@@ -15,6 +16,7 @@ class O1Response:
     content: str
     token_usage: TokenUsage
     cost: float
+    thinking_time: float = 0.0  # Default to 0 seconds
 
 class O1Client:
     def __init__(self):
@@ -51,12 +53,18 @@ class O1Client:
         Returns:
             O1Response containing the model's response, token usage, and cost
         """
+        # Start timer
+        start_time = time.time()
+        
         response: ChatCompletion = self.client.chat.completions.create(
             model="o1",
             messages=messages,
             response_format={"type": "text"},
             reasoning_effort=reasoning_effort
         )
+        
+        # Calculate thinking time
+        thinking_time = time.time() - start_time
         
         # Extract token usage
         usage = response.usage
@@ -73,7 +81,8 @@ class O1Client:
         return O1Response(
             content=response.choices[0].message.content,
             token_usage=token_usage,
-            cost=cost
+            cost=cost,
+            thinking_time=thinking_time
         )
 
 # Example usage

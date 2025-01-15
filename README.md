@@ -66,9 +66,9 @@ Response:
 ```json
 {
     "content": "Model response",
-    "input_tokens": 50,
+    "prompt_tokens": 50,
     "reasoning_tokens": 150,
-    "output_tokens": 100,
+    "completion_tokens": 100,
     "total_tokens": 300,
     "cost": 0.123,
     "user_total_cost": 1.234,

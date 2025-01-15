@@ -38,9 +38,9 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     content: str
-    input_tokens: int
+    prompt_tokens: int
     reasoning_tokens: int
-    output_tokens: int
+    completion_tokens: int
     total_tokens: int
     cost: float
     user_total_cost: float
@@ -89,11 +89,14 @@ async def chat(request: Request, chat_request: ChatRequest):
     )
     session.commit()
     
+    # Calculate completion tokens without reasoning
+    output_tokens = response.token_usage.completion_tokens - (response.token_usage.reasoning_tokens or 0)
+    
     return ChatResponse(
         content=response.content,
-        input_tokens=response.token_usage.input_tokens,
-        reasoning_tokens=response.token_usage.reasoning_tokens,
-        output_tokens=response.token_usage.output_tokens,
+        prompt_tokens=response.token_usage.prompt_tokens,
+        reasoning_tokens=response.token_usage.reasoning_tokens or 0,
+        completion_tokens=output_tokens,
         total_tokens=response.token_usage.total_tokens,
         cost=response.cost,
         user_total_cost=user.total_cost,

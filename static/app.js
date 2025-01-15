@@ -128,11 +128,21 @@ function addMessage(role, content, data = null) {
     messageDiv.className = `message ${role}-message`;
     
     if (role === 'assistant' && data) {
+        // Add thinking time as a separate element
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.className = 'text-sm text-gray-500 mb-1';
         const thinkingTime = formatThinkingTime(data.thinking_time);
-        content = `[thinking for ${thinkingTime}]\n\n${content}`;
+        thinkingDiv.textContent = `Thinking for ${thinkingTime}`;
+        messageDiv.appendChild(thinkingDiv);
+        
+        // Add the actual message content
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = content;
+        messageDiv.appendChild(contentDiv);
+    } else {
+        messageDiv.textContent = content;
     }
     
-    messageDiv.textContent = content;
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     
@@ -186,6 +196,6 @@ function updateLastMessageInfo(data) {
     const infoDiv = document.getElementById('lastMessageInfo');
     infoDiv.classList.remove('hidden');
     document.getElementById('lastTokens').textContent = 
-        `Input: ${data.input_tokens}, Reasoning: ${data.reasoning_tokens}, Output: ${data.output_tokens}`;
+        `Input: ${data.prompt_tokens}, Reasoning: ${data.reasoning_tokens}, Output: ${data.completion_tokens}`;
     document.getElementById('lastCost').textContent = data.cost.toFixed(6);
 } 
