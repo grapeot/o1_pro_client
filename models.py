@@ -1,9 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
 
-Base = declarative_base()
+from database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -55,9 +54,4 @@ class User(Base):
         if not self.update_request_count():
             return False, "Daily request limit (100) exceeded"
             
-        return True, "OK"
-
-# Drop existing database and create new one
-engine = create_engine('sqlite:///o1_chat.db')
-Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine) 
+        return True, "OK" 

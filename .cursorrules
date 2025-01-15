@@ -24,52 +24,60 @@ The goal is to help you maintain a big picture as well as the progress of the ta
 - For search results, ensure proper handling of different character encodings (UTF-8) for international queries
 - Add debug information to stderr while keeping the main output clean in stdout for better pipeline integration
 - When using seaborn styles in matplotlib, use 'seaborn-v0_8' instead of 'seaborn' as the style name due to recent seaborn version changes
+- For token-based authentication, use short tokens (8 chars) for better user experience when manual input is needed
+- Always implement rate limiting and usage tracking from the beginning for API services
+- Use dataclasses for structured data passing between components
+- Keep database session handling close to the API endpoints for better control
+- Store user IP and usage patterns for monitoring and debugging purposes
+- Use proper HTTP status codes (401 for auth, 429 for rate limit) in API responses
+
+## Management Commands
+
+When managing users and monitoring usage, use the following commands:
+
+1. Create a new user:
+```bash
+python manage.py create "User Name" --limit 1000.0
+```
+This creates a new user with the specified name and usage limit (in USD).
+
+2. List all users and their statistics:
+```bash
+python manage.py list
+```
+This shows user names, tokens, costs, daily request counts, and status.
+
+3. Toggle user active status:
+```bash
+python manage.py toggle <token>
+```
+This enables/disables a user's access.
+
+4. Reset user's daily request limits:
+```bash
+python manage.py reset <token>
+```
+This resets a user's daily request count to 0.
 
 # Scratchpad
 
 ## Project: O1 Chat Web App
 
-### Overview
-A simple web application for chatting with OpenAI's o1 model. Key features:
-- Single-session chat interface (no persistent history)
-- Basic auth using API keys
-- Cost tracking per user
-- Admin summary view for costs
-
-### Tech Stack
-- Backend: FastAPI + Python
-- Database: SQLite
-- Frontend: HTML + JavaScript (vanilla)
-- API: OpenAI o1 model (non-streaming)
-
-### Implementation Plan
-[ ] 1. Project Setup
-    - Create project structure
-    - Setup Python venv
-    - Initialize FastAPI project
-    - Create SQLite database schema
-
-[ ] 2. Backend Implementation
-    - FastAPI routes for chat
-    - SQLite integration
-    - OpenAI API integration
-    - Token counting and cost tracking
-    - Admin endpoints for usage statistics
-
-[ ] 3. Frontend Implementation
-    - Basic chat interface
-    - API key input
-    - Local storage for chat history
-    - Cost display
-
-[ ] 4. Admin Tools
-    - Script for API key management
-    - Script for usage statistics
-
-[ ] 5. Testing and Documentation
-    - Basic testing
-    - Usage documentation
-    - Deployment instructions
-
-### Current Status
-Ready to begin implementation. Would you like me to start with the project setup?
+### Current Tasks
+[X] Backend Implementation
+    [X] Basic O1 client
+    [X] User management
+    [X] Rate limiting
+    [X] Usage tracking
+[X] Management Tools
+    [X] User creation
+    [X] Usage statistics
+    [X] User control
+[ ] Frontend Implementation
+    [ ] Token input
+    [ ] Chat interface
+    [ ] Usage display
+[ ] Documentation
+    [X] Basic README
+    [ ] API documentation
+    [ ] Frontend documentation

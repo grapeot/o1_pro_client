@@ -7,10 +7,15 @@ from pydantic import BaseModel
 
 from models import User
 from o1_client import O1Client
-from manage import create_session
+from database import get_session, init_db
 
 app = FastAPI()
 o1_client = O1Client()
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 # CORS middleware
 app.add_middleware(
@@ -62,7 +67,7 @@ def get_user(token: str, session: Session, request: Request) -> User:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, chat_request: ChatRequest):
-    session = create_session()
+    session = get_session()
     user = get_user(chat_request.token, session, request)
     
     # Convert Pydantic models to dict for O1Client
@@ -89,7 +94,7 @@ async def chat(request: Request, chat_request: ChatRequest):
 
 @app.get("/user/stats/{token}", response_model=UserStats)
 async def get_user_stats(token: str, request: Request):
-    session = create_session()
+    session = get_session()
     user = get_user(token, session, request)
     
     return UserStats(

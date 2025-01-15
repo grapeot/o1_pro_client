@@ -1,15 +1,9 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from models import Base, User
+from models import User
+from database import get_session, init_db
 import secrets
 import string
 import argparse
 from datetime import datetime
-
-def create_session():
-    engine = create_engine('sqlite:///o1_chat.db')
-    Session = sessionmaker(bind=engine)
-    return Session()
 
 def generate_token(length: int = 8) -> str:
     """Generate a random token of specified length using letters and numbers."""
@@ -18,7 +12,7 @@ def generate_token(length: int = 8) -> str:
 
 def create_user(name: str, usage_limit: float = 1000.0) -> User:
     """Create a new user with a random token."""
-    session = create_session()
+    session = get_session()
     
     # Generate a unique token
     while True:
@@ -43,8 +37,12 @@ def create_user(name: str, usage_limit: float = 1000.0) -> User:
 
 def list_users():
     """List all users and their usage statistics."""
-    session = create_session()
+    session = get_session()
     users = session.query(User).all()
+    
+    if not users:
+        print("\nNo users found in the database.")
+        return
     
     print("\nUser Statistics:")
     print("-" * 100)
@@ -54,13 +52,13 @@ def list_users():
     for user in users:
         status = "Active" if user.is_active else "Inactive"
         last_used = user.last_used_at.strftime('%Y-%m-%d %H:%M') if user.last_used_at else "Never"
-        daily_requests = f"{user.daily_request_count}/100" if user.daily_request_count else "0/100"
+        daily_requests = f"{user.daily_request_count}/100" if user.daily_request_count is not None else "0/100"
         
         print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} {daily_requests:<15} {user.last_ip or 'N/A':<15} {status:<8} {last_used}")
 
 def toggle_user(token: str):
     """Toggle user active status."""
-    session = create_session()
+    session = get_session()
     user = session.query(User).filter(User.token == token).first()
     
     if not user:
@@ -75,7 +73,7 @@ def toggle_user(token: str):
 
 def reset_limits(token: str):
     """Reset user's daily request count."""
-    session = create_session()
+    session = get_session()
     user = session.query(User).filter(User.token == token).first()
     
     if not user:
@@ -89,6 +87,9 @@ def reset_limits(token: str):
     print(f"Request limits reset for user {user.name} ({token})")
 
 def main():
+    # Initialize database
+    init_db()
+    
     parser = argparse.ArgumentParser(description='Manage O1 Chat users')
     subparsers = parser.add_subparsers(dest='command', help='Commands')
     
