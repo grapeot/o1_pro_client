@@ -10,7 +10,7 @@ from models import User
 from o1_client import O1Client
 from database import get_session, init_db
 
-app = FastAPI()
+app = FastAPI(root_path="/o1")
 o1_client = O1Client()
 
 # Initialize database on startup

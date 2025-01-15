@@ -78,7 +78,7 @@ async function sendMessage() {
     const loadingMessage = addLoadingMessage();
     
     try {
-        const response = await fetch('/chat', {
+        const response = await fetch('./chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ function showError(message) {
 async function updateUserStats(userData) {
     if (!userData) {
         try {
-            const response = await fetch(`/user/stats/${currentToken}`);
+            const response = await fetch(`./user/stats/${currentToken}`);
             if (!response.ok) throw new Error('Failed to fetch user stats');
             userData = await response.json();
         } catch (error) {
