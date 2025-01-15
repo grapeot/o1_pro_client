@@ -44,13 +44,13 @@ class ChatResponse(BaseModel):
     total_tokens: int
     cost: float
     user_total_cost: float
-    daily_requests: int
+    request_count: int
 
 class UserStats(BaseModel):
     name: str
     total_tokens: int
     total_cost: float
-    daily_requests: int
+    request_count: int
     usage_limit: float
     is_active: bool
     last_used: Optional[str]
@@ -93,7 +93,7 @@ async def chat(request: Request, chat_request: ChatRequest):
         total_tokens=response.token_usage.total_tokens,
         cost=response.cost,
         user_total_cost=user.total_cost,
-        daily_requests=user.daily_request_count
+        request_count=user.request_count
     )
 
 @app.get("/user/stats/{token}", response_model=UserStats)
@@ -105,7 +105,7 @@ async def get_user_stats(token: str, request: Request):
         name=user.name,
         total_tokens=user.total_tokens,
         total_cost=user.total_cost,
-        daily_requests=user.daily_request_count,
+        request_count=user.request_count,
         usage_limit=user.usage_limit,
         is_active=user.is_active,
         last_used=user.last_used_at.isoformat() if user.last_used_at else None,

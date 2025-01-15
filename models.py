@@ -16,32 +16,17 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
     last_used_at = Column(DateTime, default=func.now(), onupdate=func.now())
     last_ip = Column(String)
-    daily_request_count = Column(Integer, default=0)
-    last_request_date = Column(DateTime)
+    request_count = Column(Integer, default=0)  # Total request count
     usage_limit = Column(Float, default=1000.0)  # Default $1000 limit
 
     def update_usage(self, tokens: int, cost: float, ip: str = None):
         """Update the user's token usage and cost."""
         self.total_tokens += tokens
         self.total_cost += cost
+        self.request_count += 1
         self.last_used_at = datetime.utcnow()
         if ip:
             self.last_ip = ip
-
-    def update_request_count(self):
-        """Update daily request count. Returns True if rate limit not exceeded."""
-        now = datetime.utcnow()
-        
-        # Reset counter if it's a new day
-        if not self.last_request_date or self.last_request_date.date() != now.date():
-            self.daily_request_count = 0
-            self.last_request_date = now
-        
-        # Increment counter
-        self.daily_request_count += 1
-        
-        # Check if we're within rate limit (100 requests per day)
-        return self.daily_request_count <= 100
 
     def check_limits(self) -> tuple[bool, str]:
         """Check if user can make requests. Returns (can_proceed, message)."""
@@ -51,7 +36,7 @@ class User(Base):
         if self.total_cost >= self.usage_limit:
             return False, f"Usage limit (${self.usage_limit:.2f}) exceeded"
             
-        if not self.update_request_count():
-            return False, "Daily request limit (100) exceeded"
+        if self.request_count >= 100:
+            return False, "Request limit (100) exceeded"
             
         return True, "OK" 

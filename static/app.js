@@ -163,7 +163,7 @@ async function updateUserStats(userData) {
     }
     
     document.getElementById('userName').textContent = userData.name;
-    document.getElementById('dailyRequests').textContent = `${userData.daily_requests}/100`;
+    document.getElementById('requestCount').textContent = `${userData.request_count}/100`;
     document.getElementById('totalCost').textContent = `$${userData.total_cost.toFixed(4)}`;
     document.getElementById('usageLimit').textContent = `$${userData.usage_limit.toFixed(2)}`;
 }
