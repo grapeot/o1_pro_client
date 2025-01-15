@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import uvicorn
@@ -16,6 +17,9 @@ o1_client = O1Client()
 @app.on_event("startup")
 async def startup_event():
     init_db()
+
+# Mount static files
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 # CORS middleware
 app.add_middleware(

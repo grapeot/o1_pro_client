@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O1 Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 h-screen">
+    <div class="container mx-auto px-4 py-8 h-full flex flex-col">
+        <!-- Token Input -->
+        <div id="tokenInput" class="bg-white rounded-lg shadow p-4 mb-4">
+            <div class="flex gap-4">
+                <input type="text" id="token" placeholder="Enter your 8-char token" 
+                    class="flex-grow p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="setToken()" 
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none">
+                    Set Token
+                </button>
+            </div>
+        </div>
+
+        <!-- User Stats -->
+        <div id="userStats" class="bg-white rounded-lg shadow p-4 mb-4 hidden">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-gray-600">User</div>
+                    <div id="userName" class="font-bold"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-600">Today's Requests</div>
+                    <div id="dailyRequests" class="font-bold"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-600">Total Cost</div>
+                    <div id="totalCost" class="font-bold"></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-gray-600">Usage Limit</div>
+                    <div id="usageLimit" class="font-bold"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div id="chatInterface" class="flex-grow flex flex-col bg-white rounded-lg shadow hidden">
+            <!-- Chat Messages -->
+            <div id="messages" class="flex-grow p-4 overflow-y-auto space-y-4">
+                <!-- Messages will be inserted here -->
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t p-4">
+                <div class="flex gap-4">
+                    <select id="reasoningEffort" class="p-2 border rounded w-32">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <input type="text" id="messageInput" placeholder="Type your message..." 
+                        class="flex-grow p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="sendMessage()" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none">
+                        Send
+                    </button>
+                </div>
+                <!-- Last message info -->
+                <div id="lastMessageInfo" class="text-sm text-gray-500 mt-2 hidden">
+                    <span>Tokens: <span id="lastTokens">0</span></span>
+                    <span class="ml-4">Cost: $<span id="lastCost">0.00</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

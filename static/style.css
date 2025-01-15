@@ -1,0 +1,50 @@
+.message {
+    max-width: 80%;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+}
+
+.user-message {
+    background-color: #e3f2fd;
+    margin-left: auto;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.assistant-message {
+    background-color: #f5f5f5;
+    margin-right: auto;
+    border-bottom-left-radius: 0.25rem;
+}
+
+#messages {
+    height: calc(100vh - 300px);
+    min-height: 300px;
+}
+
+/* Error message styling */
+.error-message {
+    background-color: #fee2e2;
+    border: 1px solid #ef4444;
+    color: #dc2626;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+/* Loading indicator */
+.loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 50%;
+    border-top-color: #3b82f6;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+} 
