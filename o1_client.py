@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletion
 from dataclasses import dataclass
 from typing import Optional, List
@@ -20,7 +20,7 @@ class O1Response:
 
 class O1Client:
     def __init__(self):
-        self.client = OpenAI()
+        self.client = AsyncOpenAI()
     
     @staticmethod
     def calculate_cost(prompt_tokens: int, completion_tokens: int) -> float:
@@ -43,7 +43,7 @@ class O1Client:
         
         return input_cost + output_cost
 
-    def query(self, messages: List[dict[str, str]], reasoning_effort: str = "low") -> O1Response:
+    async def query(self, messages: List[dict[str, str]], reasoning_effort: str = "low") -> O1Response:
         """Query the o1 model and return the response with token usage and cost.
         
         Args:
@@ -56,7 +56,7 @@ class O1Client:
         # Start timer
         start_time = time.time()
         
-        response: ChatCompletion = self.client.chat.completions.create(
+        response: ChatCompletion = await self.client.chat.completions.create(
             model="o1",
             messages=messages,
             response_format={"type": "text"},
@@ -87,22 +87,27 @@ class O1Client:
 
 # Example usage
 if __name__ == "__main__":
-    client = O1Client()
-    messages = [
-        {"role": "user", "content": "Tell me a short joke about programming. 最好给我惊喜."}
-    ]
+    import asyncio
     
-    print("Sending request to OpenAI API...")
-    response = client.query(messages)
+    async def main():
+        client = O1Client()
+        messages = [
+            {"role": "user", "content": "Tell me a short joke about programming. 最好给我惊喜."}
+        ]
+        
+        print("Sending request to OpenAI API...")
+        response = await client.query(messages)
+        
+        print("\nJoke from o1:")
+        print(response.content)
+        
+        print("\nToken Usage:")
+        print(f"Input tokens: {response.token_usage.prompt_tokens}")
+        print(f"Output tokens: {response.token_usage.completion_tokens}")
+        if response.token_usage.reasoning_tokens is not None:
+            print(f"  - Including reasoning tokens: {response.token_usage.reasoning_tokens}")
+        print(f"Total tokens: {response.token_usage.total_tokens}")
+        
+        print(f"\nEstimated cost: ${response.cost:.6f}")
     
-    print("\nJoke from o1:")
-    print(response.content)
-    
-    print("\nToken Usage:")
-    print(f"Input tokens: {response.token_usage.prompt_tokens}")
-    print(f"Output tokens: {response.token_usage.completion_tokens}")
-    if response.token_usage.reasoning_tokens is not None:
-        print(f"  - Including reasoning tokens: {response.token_usage.reasoning_tokens}")
-    print(f"Total tokens: {response.token_usage.total_tokens}")
-    
-    print(f"\nEstimated cost: ${response.cost:.6f}") 
+    asyncio.run(main()) 

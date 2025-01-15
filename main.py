@@ -79,7 +79,7 @@ async def chat(request: Request, chat_request: ChatRequest):
     messages = [{"role": msg.role, "content": msg.content} for msg in chat_request.messages]
     
     # Query O1
-    response = o1_client.query(messages, chat_request.reasoning_effort)
+    response = await o1_client.query(messages, chat_request.reasoning_effort)
     
     # Update user statistics
     user.update_usage(
