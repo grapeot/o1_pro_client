@@ -1,0 +1,75 @@
+# Instructions
+
+During you interaction with the user, if you find anything reusable in this project (e.g. version of a library, model name), especially about a fix to a mistake you made or a correction you received, you should take note in the `Lessons` section in the `.cursorrules` file so you will not make the same mistake again. 
+
+You should also use the `.cursorrules` file as a scratchpad to organize your thoughts. Especially when you receive a new task, you should first review the content of the scratchpad, clear old different task if necessary, first explain the task, and plan the steps you need to take to complete the task. You can use todo markers to indicate the progress, e.g.
+[X] Task 1
+[ ] Task 2
+Also update the progress of the task in the Scratchpad when you finish a subtask.
+Especially when you finished a milestone, it will help to improve your depth of task accomplishment to use the scratchpad to reflect and plan.
+The goal is to help you maintain a big picture as well as the progress of the task. Always refer to the Scratchpad when you plan the next step.
+
+# Lessons
+
+## User Specified Lessons
+
+- You have a python venv in ./venv.
+- Include info useful for debugging in the program output.
+- Read the file before you try to edit it.
+- Use LLM to perform flexible text understanding tasks. First test on a few files. After success, make it parallel.
+
+## Cursor learned
+
+- For website image paths, always use the correct relative path (e.g., 'images/filename.png') and ensure the images directory exists
+- For search results, ensure proper handling of different character encodings (UTF-8) for international queries
+- Add debug information to stderr while keeping the main output clean in stdout for better pipeline integration
+- When using seaborn styles in matplotlib, use 'seaborn-v0_8' instead of 'seaborn' as the style name due to recent seaborn version changes
+
+# Scratchpad
+
+## Project: O1 Chat Web App
+
+### Overview
+A simple web application for chatting with OpenAI's o1 model. Key features:
+- Single-session chat interface (no persistent history)
+- Basic auth using API keys
+- Cost tracking per user
+- Admin summary view for costs
+
+### Tech Stack
+- Backend: FastAPI + Python
+- Database: SQLite
+- Frontend: HTML + JavaScript (vanilla)
+- API: OpenAI o1 model (non-streaming)
+
+### Implementation Plan
+[ ] 1. Project Setup
+    - Create project structure
+    - Setup Python venv
+    - Initialize FastAPI project
+    - Create SQLite database schema
+
+[ ] 2. Backend Implementation
+    - FastAPI routes for chat
+    - SQLite integration
+    - OpenAI API integration
+    - Token counting and cost tracking
+    - Admin endpoints for usage statistics
+
+[ ] 3. Frontend Implementation
+    - Basic chat interface
+    - API key input
+    - Local storage for chat history
+    - Cost display
+
+[ ] 4. Admin Tools
+    - Script for API key management
+    - Script for usage statistics
+
+[ ] 5. Testing and Documentation
+    - Basic testing
+    - Usage documentation
+    - Deployment instructions
+
+### Current Status
+Ready to begin implementation. Would you like me to start with the project setup?
