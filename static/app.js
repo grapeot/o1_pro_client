@@ -135,7 +135,8 @@ function addMessage(role, content, data = null) {
         const thinkingDiv = document.createElement('div');
         thinkingDiv.className = 'text-sm text-gray-500 mb-1';
         const thinkingTime = formatThinkingTime(data.thinking_time);
-        thinkingDiv.textContent = `Thinking for ${thinkingTime}`;
+        const isProMode = document.getElementById('reasoningEffort').checked;
+        thinkingDiv.textContent = `Thinking for ${thinkingTime}${isProMode ? ' (Pro Mode)' : ''}`;
         messageDiv.appendChild(thinkingDiv);
         
         // Add the actual message content
