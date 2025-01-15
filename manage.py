@@ -46,15 +46,15 @@ def list_users():
     
     print("\nUser Statistics:")
     print("-" * 100)
-    print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Requests Today':<15} {'Last IP':<15} {'Status':<8} {'Last Used':<20}")
+    print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Total Requests':<15} {'Last IP':<15} {'Status':<8} {'Last Used':<20}")
     print("-" * 100)
     
     for user in users:
         status = "Active" if user.is_active else "Inactive"
         last_used = user.last_used_at.strftime('%Y-%m-%d %H:%M') if user.last_used_at else "Never"
-        daily_requests = f"{user.daily_request_count}/100" if user.daily_request_count is not None else "0/100"
+        requests = f"{user.request_count}/100" if user.request_count is not None else "0/100"
         
-        print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} {daily_requests:<15} {user.last_ip or 'N/A':<15} {status:<8} {last_used}")
+        print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} {requests:<15} {user.last_ip or 'N/A':<15} {status:<8} {last_used}")
 
 def toggle_user(token: str):
     """Toggle user active status."""
@@ -72,7 +72,7 @@ def toggle_user(token: str):
     print(f"User {user.name} ({token}) has been {status}")
 
 def reset_limits(token: str):
-    """Reset user's daily request count."""
+    """Reset user's request count."""
     session = get_session()
     user = session.query(User).filter(User.token == token).first()
     
@@ -80,8 +80,7 @@ def reset_limits(token: str):
         print(f"User with token {token} not found")
         return
     
-    user.daily_request_count = 0
-    user.last_request_date = None
+    user.request_count = 0
     session.commit()
     
     print(f"Request limits reset for user {user.name} ({token})")

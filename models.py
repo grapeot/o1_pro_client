@@ -36,7 +36,4 @@ class User(Base):
         if self.total_cost >= self.usage_limit:
             return False, f"Usage limit (${self.usage_limit:.2f}) exceeded"
             
-        if self.request_count >= 100:
-            return False, "Request limit (100) exceeded"
-            
         return True, "OK" 

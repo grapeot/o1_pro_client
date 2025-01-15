@@ -23,22 +23,14 @@
 
         <!-- User Stats -->
         <div id="userStats" class="bg-white rounded-lg shadow p-4 mb-4 hidden">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div class="text-center">
                     <div class="text-gray-600">User</div>
                     <div id="userName" class="font-bold"></div>
                 </div>
                 <div class="text-center">
-                    <div class="text-gray-600">Total Requests</div>
-                    <div id="requestCount" class="font-bold"></div>
-                </div>
-                <div class="text-center">
                     <div class="text-gray-600">Total Cost</div>
                     <div id="totalCost" class="font-bold"></div>
-                </div>
-                <div class="text-center">
-                    <div class="text-gray-600">Usage Limit</div>
-                    <div id="usageLimit" class="font-bold"></div>
                 </div>
             </div>
         </div>
@@ -53,11 +45,10 @@
             <!-- Input Area -->
             <div class="border-t p-4">
                 <div class="flex gap-4">
-                    <select id="reasoningEffort" class="p-2 border rounded w-32">
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="reasoningEffort" class="w-4 h-4 text-blue-600">
+                        <span class="text-gray-700">o1 Pro</span>
+                    </label>
                     <input type="text" id="messageInput" placeholder="Type your message..." 
                         class="flex-grow p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button onclick="sendMessage()" 
@@ -67,8 +58,10 @@
                 </div>
                 <!-- Last message info -->
                 <div id="lastMessageInfo" class="text-sm text-gray-500 mt-2 hidden">
-                    <span>Tokens: <span id="lastTokens">0</span></span>
-                    <span class="ml-4">Cost: $<span id="lastCost">0.00</span></span>
+                    <div class="flex flex-wrap gap-4">
+                        <span>Tokens: <span id="lastTokens" class="font-mono"></span></span>
+                        <span>Cost: $<span id="lastCost" class="font-mono">0.00</span></span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -67,7 +67,8 @@ async function sendMessage() {
     const content = messageInput.value.trim();
     if (!content) return;
 
-    const reasoningEffort = document.getElementById('reasoningEffort').value;
+    const isProMode = document.getElementById('reasoningEffort').checked;
+    const reasoningEffort = isProMode ? "high" : "medium";
     
     // Add user message to UI
     addMessage('user', content);
@@ -99,7 +100,7 @@ async function sendMessage() {
         loadingMessage.remove();
         
         // Add assistant message
-        addMessage('assistant', data.content);
+        addMessage('assistant', data.content, data);
         
         // Update stats
         updateLastMessageInfo(data);
@@ -112,10 +113,25 @@ async function sendMessage() {
 }
 
 // UI Helper functions
-function addMessage(role, content) {
+function formatThinkingTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    if (minutes > 0) {
+        return `${minutes} min ${remainingSeconds} sec`;
+    }
+    return `${remainingSeconds} sec`;
+}
+
+function addMessage(role, content, data = null) {
     const messagesDiv = document.getElementById('messages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${role}-message`;
+    
+    if (role === 'assistant' && data) {
+        const thinkingTime = formatThinkingTime(data.thinking_time);
+        content = `[thinking for ${thinkingTime}]\n\n${content}`;
+    }
+    
     messageDiv.textContent = content;
     messagesDiv.appendChild(messageDiv);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -163,14 +179,13 @@ async function updateUserStats(userData) {
     }
     
     document.getElementById('userName').textContent = userData.name;
-    document.getElementById('requestCount').textContent = `${userData.request_count}/100`;
     document.getElementById('totalCost').textContent = `$${userData.total_cost.toFixed(4)}`;
-    document.getElementById('usageLimit').textContent = `$${userData.usage_limit.toFixed(2)}`;
 }
 
 function updateLastMessageInfo(data) {
     const infoDiv = document.getElementById('lastMessageInfo');
     infoDiv.classList.remove('hidden');
-    document.getElementById('lastTokens').textContent = data.total_tokens;
+    document.getElementById('lastTokens').textContent = 
+        `Input: ${data.input_tokens}, Reasoning: ${data.reasoning_tokens}, Output: ${data.output_tokens}`;
     document.getElementById('lastCost').textContent = data.cost.toFixed(6);
 } 

@@ -30,6 +30,9 @@ The goal is to help you maintain a big picture as well as the progress of the ta
 - Keep database session handling close to the API endpoints for better control
 - Store user IP and usage patterns for monitoring and debugging purposes
 - Use proper HTTP status codes (401 for auth, 429 for rate limit) in API responses
+- Mount static files after API routes in FastAPI to ensure proper route handling
+- Track detailed token usage (input, reasoning, output) for better cost monitoring
+- Use permanent request tracking instead of daily limits for simpler implementation
 
 ## Management Commands
 
@@ -45,7 +48,7 @@ This creates a new user with the specified name and usage limit (in USD).
 ```bash
 python manage.py list
 ```
-This shows user names, tokens, costs, daily request counts, and status.
+This shows user names, tokens, costs, request counts, and status.
 
 3. Toggle user active status:
 ```bash
@@ -53,11 +56,11 @@ python manage.py toggle <token>
 ```
 This enables/disables a user's access.
 
-4. Reset user's daily request limits:
+4. Reset user's request limits:
 ```bash
 python manage.py reset <token>
 ```
-This resets a user's daily request count to 0.
+This resets a user's request count to 0.
 
 # Scratchpad
 
@@ -73,11 +76,17 @@ This resets a user's daily request count to 0.
     [X] User creation
     [X] Usage statistics
     [X] User control
-[ ] Frontend Implementation
-    [ ] Token input
-    [ ] Chat interface
-    [ ] Usage display
-[ ] Documentation
+[X] Frontend Implementation
+    [X] Token input
+    [X] Chat interface
+    [X] Usage display
+    [X] O1 Pro mode toggle
+[X] UI/UX Improvements
+    [X] Remove daily request limits
+    [X] Add detailed token usage display
+    [X] Add thinking time display
+    [X] Simplify reasoning effort to Pro/Normal mode
+[X] Documentation
     [X] Basic README
-    [ ] API documentation
-    [ ] Frontend documentation
+    [X] Management commands
+    [X] Lessons learned

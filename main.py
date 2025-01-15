@@ -18,9 +18,6 @@ o1_client = O1Client()
 async def startup_event():
     init_db()
 
-# Mount static files
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -41,10 +38,14 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     content: str
+    input_tokens: int
+    reasoning_tokens: int
+    output_tokens: int
     total_tokens: int
     cost: float
     user_total_cost: float
     request_count: int
+    thinking_time: float  # in seconds
 
 class UserStats(BaseModel):
     name: str
@@ -90,10 +91,14 @@ async def chat(request: Request, chat_request: ChatRequest):
     
     return ChatResponse(
         content=response.content,
+        input_tokens=response.token_usage.input_tokens,
+        reasoning_tokens=response.token_usage.reasoning_tokens,
+        output_tokens=response.token_usage.output_tokens,
         total_tokens=response.token_usage.total_tokens,
         cost=response.cost,
         user_total_cost=user.total_cost,
-        request_count=user.request_count
+        request_count=user.request_count,
+        thinking_time=response.thinking_time
     )
 
 @app.get("/user/stats/{token}", response_model=UserStats)
@@ -111,6 +116,9 @@ async def get_user_stats(token: str, request: Request):
         last_used=user.last_used_at.isoformat() if user.last_used_at else None,
         last_ip=user.last_ip
     )
+
+# Mount static files after all API routes
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8011) 
