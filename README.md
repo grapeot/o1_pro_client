@@ -22,15 +22,22 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 2. Install dependencies:
 ```bash
-pip install openai fastapi uvicorn sqlalchemy
+pip install -r requirements.txt
 ```
 
-3. Create a test user:
+3. Configure environment:
+- Copy `.env.example` to `.env`
+- Set your OpenAI API key in `.env`:
+```bash
+OPENAI_API_KEY=your_api_key_here
+```
+
+4. Create a test user:
 ```bash
 python manage.py create "Your Name" --limit 100.0  # Set usage limit to $100
 ```
 
-4. Start the server:
+5. Start the server:
 ```bash
 python main.py
 ```
@@ -99,6 +106,28 @@ Response:
 - Usage limit: Configurable per user (default: $1000)
 - Authentication: 401 response for invalid tokens
 - Cost limit: 429 response when usage limit exceeded
+
+## Security Configuration
+
+### API Key
+Set your OpenAI API key in the environment:
+```bash
+export OPENAI_API_KEY=your_api_key_here
+```
+Or create a `.env` file based on `.env.example`.
+
+### Database
+The SQLite database file contains sensitive user data. Make sure to:
+- Keep it in a secure location
+- Set proper file permissions
+- Back it up regularly
+- Do not commit it to version control
+
+### User Tokens
+- Tokens are 8 characters long and randomly generated
+- Keep tokens secure and treat them like passwords
+- Consider rotating tokens periodically
+- Do not share tokens in public repositories or logs
 
 ## License
 

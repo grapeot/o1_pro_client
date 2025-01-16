@@ -13,98 +13,112 @@ def generate_token(length: int = 8) -> str:
 def create_user(name: str, usage_limit: float = 1000.0) -> User:
     """Create a new user with a random token."""
     session = get_session()
-    
-    # Generate a unique token
-    while True:
-        token = generate_token()
-        if not session.query(User).filter(User.token == token).first():
-            break
-    
-    # Create new user
-    user = User(
-        name=name,
-        token=token,
-        usage_limit=usage_limit
-    )
-    session.add(user)
-    session.commit()
-    
-    print(f"\nCreated user:")
-    print(f"Name: {name}")
-    print(f"Token: {token}")
-    print(f"Usage limit: ${usage_limit:.2f}")
-    return user
+    try:
+        # Generate a unique token
+        while True:
+            token = generate_token()
+            if not session.query(User).filter(User.token == token).first():
+                break
+        
+        # Create new user
+        user = User(
+            name=name,
+            token=token,
+            usage_limit=usage_limit
+        )
+        session.add(user)
+        session.commit()
+        
+        print(f"\nCreated user:")
+        print(f"Name: {name}")
+        print(f"Token: {token}")
+        print(f"Usage limit: ${usage_limit:.2f}")
+        return user
+    finally:
+        session.close()
 
 def list_users():
     """List all users and their usage statistics."""
     session = get_session()
-    users = session.query(User).all()
-    
-    if not users:
-        print("\nNo users found in the database.")
-        return
-    
-    print("\nUser Statistics:")
-    print("-" * 120)
-    print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Limit':<12} {'Remaining':<12} {'Requests':<15} {'Status':<8} {'Last Used':<20}")
-    print("-" * 120)
-    
-    for user in users:
-        status = "Active" if user.is_active else "Inactive"
-        last_used = user.last_used_at.strftime('%Y-%m-%d %H:%M') if user.last_used_at else "Never"
-        requests = f"{user.request_count}/100" if user.request_count is not None else "0/100"
-        remaining = user.usage_limit - user.total_cost
+    try:
+        users = session.query(User).all()
         
-        print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} ${user.usage_limit:<10.2f} ${remaining:<10.2f} {requests:<15} {status:<8} {last_used}")
+        if not users:
+            print("\nNo users found in the database.")
+            return
+        
+        print("\nUser Statistics:")
+        print("-" * 120)
+        print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Limit':<12} {'Remaining':<12} {'Requests':<15} {'Status':<8} {'Last Used':<20}")
+        print("-" * 120)
+        
+        for user in users:
+            status = "Active" if user.is_active else "Inactive"
+            last_used = user.last_used_at.strftime('%Y-%m-%d %H:%M') if user.last_used_at else "Never"
+            requests = f"{user.request_count}/100" if user.request_count is not None else "0/100"
+            remaining = user.usage_limit - user.total_cost
+            
+            print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} ${user.usage_limit:<10.2f} ${remaining:<10.2f} {requests:<15} {status:<8} {last_used}")
+    finally:
+        session.close()
 
 def toggle_user(token: str):
     """Toggle user active status."""
     session = get_session()
-    user = session.query(User).filter(User.token == token).first()
-    
-    if not user:
-        print(f"User with token {token} not found")
-        return
-    
-    user.is_active = not user.is_active
-    session.commit()
-    
-    status = "activated" if user.is_active else "deactivated"
-    print(f"User {user.name} ({token}) has been {status}")
+    try:
+        user = session.query(User).filter(User.token == token).first()
+        
+        if not user:
+            print(f"User with token {token} not found")
+            return
+        
+        user.is_active = not user.is_active
+        session.commit()
+        
+        status = "activated" if user.is_active else "deactivated"
+        print(f"User {user.name} ({token}) has been {status}")
+    finally:
+        session.close()
 
 def reset_limits(token: str):
     """Reset user's request count."""
     session = get_session()
-    user = session.query(User).filter(User.token == token).first()
-    
-    if not user:
-        print(f"User with token {token} not found")
-        return
-    
-    user.request_count = 0
-    session.commit()
-    
-    print(f"Request limits reset for user {user.name} ({token})")
+    try:
+        user = session.query(User).filter(User.token == token).first()
+        
+        if not user:
+            print(f"User with token {token} not found")
+            return
+        
+        user.request_count = 0
+        session.commit()
+        
+        print(f"Request limits reset for user {user.name} ({token})")
+    finally:
+        session.close()
 
 def add_limit(token: str, amount: float):
     """Increase user's usage limit by specified amount."""
     session = get_session()
-    user = session.query(User).filter(User.token == token).first()
-    
-    if not user:
-        print(f"User with token {token} not found")
-        return
-    
-    old_limit = user.usage_limit
-    user.usage_limit += amount
-    session.commit()
-    
-    remaining_budget = user.usage_limit - user.total_cost
-    print(f"Usage limit for user {user.name} ({token}) increased by ${amount:.2f}")
-    print(f"Old limit: ${old_limit:.2f}")
-    print(f"New limit: ${user.usage_limit:.2f}")
-    print(f"Current cost: ${user.total_cost:.2f}")
-    print(f"Remaining budget: ${remaining_budget:.2f}")
+    try:
+        user = session.query(User).filter(User.token == token).first()
+        
+        if not user:
+            print(f"User with token {token} not found")
+            return
+        
+        old_limit = user.usage_limit
+        user.usage_limit += amount
+        session.commit()
+        
+        remaining_budget = user.usage_limit - user.total_cost
+        print(f"Usage limit for user {user.name} ({token}) increased by ${amount:.2f}")
+        print(f"Old limit: ${old_limit:.2f}")
+        print(f"New limit: ${user.usage_limit:.2f}")
+        print(f"Current cost: ${user.total_cost:.2f}")
+        print(f"Remaining budget: ${remaining_budget:.2f}")
+    finally:
+        session.close()
 
 def main():
     # Initialize database

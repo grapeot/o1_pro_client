@@ -3,6 +3,7 @@ from openai.types.chat import ChatCompletion
 from dataclasses import dataclass
 from typing import Optional, List
 import time
+import os
 
 @dataclass
 class TokenUsage:
@@ -20,7 +21,13 @@ class O1Response:
 
 class O1Client:
     def __init__(self):
-        self.client = AsyncOpenAI()
+        # Check for API key in environment
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError(
+                "OpenAI API key not found. Please set the OPENAI_API_KEY environment variable."
+            )
+        self.client = AsyncOpenAI(api_key=api_key)
     
     @staticmethod
     def calculate_cost(prompt_tokens: int, completion_tokens: int) -> float:
