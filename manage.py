@@ -45,16 +45,17 @@ def list_users():
         return
     
     print("\nUser Statistics:")
-    print("-" * 100)
-    print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Total Requests':<15} {'Last IP':<15} {'Status':<8} {'Last Used':<20}")
-    print("-" * 100)
+    print("-" * 120)
+    print(f"{'Name':<20} {'Token':<10} {'Total Cost':<12} {'Limit':<12} {'Remaining':<12} {'Requests':<15} {'Status':<8} {'Last Used':<20}")
+    print("-" * 120)
     
     for user in users:
         status = "Active" if user.is_active else "Inactive"
         last_used = user.last_used_at.strftime('%Y-%m-%d %H:%M') if user.last_used_at else "Never"
         requests = f"{user.request_count}/100" if user.request_count is not None else "0/100"
+        remaining = user.usage_limit - user.total_cost
         
-        print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} {requests:<15} {user.last_ip or 'N/A':<15} {status:<8} {last_used}")
+        print(f"{user.name:<20} {user.token:<10} ${user.total_cost:<10.2f} ${user.usage_limit:<10.2f} ${remaining:<10.2f} {requests:<15} {status:<8} {last_used}")
 
 def toggle_user(token: str):
     """Toggle user active status."""
@@ -85,6 +86,26 @@ def reset_limits(token: str):
     
     print(f"Request limits reset for user {user.name} ({token})")
 
+def add_limit(token: str, amount: float):
+    """Increase user's usage limit by specified amount."""
+    session = get_session()
+    user = session.query(User).filter(User.token == token).first()
+    
+    if not user:
+        print(f"User with token {token} not found")
+        return
+    
+    old_limit = user.usage_limit
+    user.usage_limit += amount
+    session.commit()
+    
+    remaining_budget = user.usage_limit - user.total_cost
+    print(f"Usage limit for user {user.name} ({token}) increased by ${amount:.2f}")
+    print(f"Old limit: ${old_limit:.2f}")
+    print(f"New limit: ${user.usage_limit:.2f}")
+    print(f"Current cost: ${user.total_cost:.2f}")
+    print(f"Remaining budget: ${remaining_budget:.2f}")
+
 def main():
     # Initialize database
     init_db()
@@ -108,6 +129,11 @@ def main():
     reset_parser = subparsers.add_parser('reset', help='Reset user request limits')
     reset_parser.add_argument('token', help='User token')
     
+    # Add limit command
+    add_limit_parser = subparsers.add_parser('add_limit', help='Add to user usage limit')
+    add_limit_parser.add_argument('token', help='User token')
+    add_limit_parser.add_argument('amount', type=float, help='Amount to add to usage limit in USD')
+    
     args = parser.parse_args()
     
     if args.command == 'create':
@@ -118,6 +144,8 @@ def main():
         toggle_user(args.token)
     elif args.command == 'reset':
         reset_limits(args.token)
+    elif args.command == 'add_limit':
+        add_limit(args.token, args.amount)
     else:
         parser.print_help()
 
