@@ -16,11 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Add enter key handler for message input
-    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+    const messageInput = document.getElementById('messageInput');
+    messageInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
+    });
+
+    // Add input handler for auto-resize
+    messageInput.addEventListener('input', () => {
+        messageInput.style.height = 'auto';
+        messageInput.style.height = Math.min(messageInput.scrollHeight, 150) + 'px';
     });
 });
 
@@ -73,21 +80,28 @@ async function sendMessage() {
     const isProMode = document.getElementById('reasoningEffort').checked;
     const reasoningEffort = isProMode ? "high" : "medium";
     
+    // Reset textarea height
+    messageInput.style.height = 'auto';
+    messageInput.value = '';
+    
     // Add user message to UI
     addMessage('user', content);
-    messageInput.value = '';
     
     // Show loading state
     const loadingMessage = addLoadingMessage();
     
     try {
+        const normalizedContent = content.replace(/\r\n/g, '\n');
         const response = await fetch(`${basePath}/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                messages: [...messages, { role: 'user', content }],
+                messages: [...messages.slice(0, -1), { 
+                    role: 'user', 
+                    content: normalizedContent
+                }],
                 token: currentToken,
                 reasoning_effort: reasoningEffort
             })
@@ -102,7 +116,8 @@ async function sendMessage() {
         // Remove loading message
         loadingMessage.remove();
         
-        // Add assistant message
+        // Add assistant message with normalized line endings
+        data.content = data.content.replace(/\\n/g, '\n');
         addMessage('assistant', data.content, data);
         
         // Update stats
@@ -141,10 +156,18 @@ function addMessage(role, content, data = null) {
         
         // Add the actual message content
         const contentDiv = document.createElement('div');
-        contentDiv.textContent = content;
+        contentDiv.className = 'message-content';
+        // 确保换行符被保留
+        const formattedContent = content.replace(/\\n/g, '\n');
+        contentDiv.textContent = formattedContent;
         messageDiv.appendChild(contentDiv);
     } else {
-        messageDiv.textContent = content;
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        // 确保换行符被保留
+        const formattedContent = content.replace(/\\n/g, '\n');
+        contentDiv.textContent = formattedContent;
+        messageDiv.appendChild(contentDiv);
     }
     
     messagesDiv.appendChild(messageDiv);
