@@ -3,6 +3,9 @@
     padding: 0.5rem 1rem;
     border-radius: 1rem;
     margin-bottom: 1rem;
+    white-space: pre-wrap !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .user-message {
@@ -47,4 +50,37 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Textarea auto-resize */
+#messageInput {
+    line-height: 1.5;
+    transition: height 0.1s ease-in-out;
+}
+
+#messageInput:focus {
+    height: auto;
+    max-height: 150px;
+}
+
+/* Message content */
+.message-content {
+    white-space: pre-wrap !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-family: inherit;
+    line-height: 1.5;
+    display: block;
+}
+
+/* Code blocks in messages */
+.message-content pre,
+.message-content code {
+    white-space: pre !important;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 0.5em;
+    background: #f8f8f8;
+    border-radius: 0.25rem;
+    display: block;
 } 
